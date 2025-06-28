@@ -1,15 +1,15 @@
 package kg.sweezy.watchtime.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "profile_picture")
 @RequiredArgsConstructor
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 public class ProfilePictureEntity extends BaseEntity{
     @Column(name = "file_name", nullable = false, unique = true)
     private String fileName;

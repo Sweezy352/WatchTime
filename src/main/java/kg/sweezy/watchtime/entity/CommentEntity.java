@@ -1,9 +1,7 @@
 package kg.sweezy.watchtime.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -12,6 +10,8 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 public class CommentEntity extends BaseEntity{
     @Column(name = "content", nullable = false)
     private String content;

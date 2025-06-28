@@ -1,9 +1,7 @@
 package kg.sweezy.watchtime.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,6 +11,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 public class VideoEntity extends BaseEntity {
     @Column(name = "title", nullable = false)
     private String title;

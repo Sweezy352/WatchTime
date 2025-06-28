@@ -1,11 +1,12 @@
 package kg.sweezy.watchtime.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -13,9 +14,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class UserEntity extends BaseEntity{
+@Builder
+@AllArgsConstructor
+public class UserEntity extends BaseEntity implements UserDetails {
     @Column(name = "username", nullable = false, unique = true)
-    private String userName;
+    private String username;
     @Column(name = "password", nullable = false)
     private String password;
     @Column(name = "email", nullable = false, unique = true)
@@ -34,8 +37,10 @@ public class UserEntity extends BaseEntity{
             inverseJoinColumns = @JoinColumn(name = "user_id_subscriber", referencedColumnName = "id", unique = true)
     )
     private List<UserEntity> subscribtionList;
+
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private ProfilePictureEntity profilePicture;
+
     @OneToMany(mappedBy = "user",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<VideoEntity> videos;
 
@@ -69,5 +74,15 @@ public class UserEntity extends BaseEntity{
         subscribers = 0l;
         isPremium = false;
         dateCreated = LocalDate.now();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
     }
 }
