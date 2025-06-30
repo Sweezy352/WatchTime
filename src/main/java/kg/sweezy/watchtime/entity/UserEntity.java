@@ -31,6 +31,9 @@ public class UserEntity extends BaseEntity implements UserDetails {
     private Boolean isPremium;
     @Column(name = "date_created")
     private LocalDate dateCreated;
+    @ManyToMany(mappedBy = "users",fetch = FetchType.EAGER)
+    private List<RoleEntity> roles;
+
     @ManyToMany
     @JoinTable(name = "m2m_subscribers_users",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
@@ -78,7 +81,7 @@ public class UserEntity extends BaseEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return roles;
     }
 
     @Override

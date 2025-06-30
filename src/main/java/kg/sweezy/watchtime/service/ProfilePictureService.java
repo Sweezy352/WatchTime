@@ -11,5 +11,5 @@ public interface ProfilePictureService {
     public ProfilePictureEntity uploadProfilePicture(UserEntity userEntity, MultipartFile file);
     public InputStream getProfilePictureByFileName(String fileName);
     public String getContentType(String fileName);
-    public void deleteProfilePictureById();
+    public void deleteProfilePictureByUser(UserEntity userEntity);
 }

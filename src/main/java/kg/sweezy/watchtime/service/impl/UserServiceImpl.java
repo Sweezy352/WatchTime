@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
                 || user.getEmail().isEmpty()) throw new IncorrectInputException("");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         UserEntity userEntity = userRepository.save(user);
-        userEntity.setProfilePicture(profilePictureService.uploadProfilePicture(userEntity, profilePicture));
+        if(profilePicture != null && !profilePicture.isEmpty()) userEntity.setProfilePicture(profilePictureService.uploadProfilePicture(userEntity, profilePicture));
         return userEntity;
     }
 

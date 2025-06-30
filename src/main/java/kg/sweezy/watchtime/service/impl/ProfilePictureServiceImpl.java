@@ -19,15 +19,13 @@ import java.io.InputStream;
 @Service
 public class ProfilePictureServiceImpl implements ProfilePictureService {
     private final MinIoService minIoService;
-    private final AuthServiceImpl authServiceImpl;
     private final ProfilePictureRepository profilePictureRepository;
     @Value("${minio.bucket.name.profilePicture}")
     private String bucketName;
 
     @Autowired
-    public ProfilePictureServiceImpl(MinIoService minIoService, AuthServiceImpl authServiceImpl, ProfilePictureRepository profilePictureRepository) {
+    public ProfilePictureServiceImpl(MinIoService minIoService, ProfilePictureRepository profilePictureRepository) {
         this.minIoService = minIoService;
-        this.authServiceImpl = authServiceImpl;
         this.profilePictureRepository = profilePictureRepository;
     }
 
@@ -60,9 +58,8 @@ public class ProfilePictureServiceImpl implements ProfilePictureService {
     }
 
     @Override
-    public void deleteProfilePictureById() {
+    public void deleteProfilePictureByUser(UserEntity userEntity) {
         try{
-            UserEntity userEntity = authServiceImpl.getCurrentUser();
             if(userEntity.getProfilePicture() != null) {
                 minIoService.deleteFile(userEntity.getProfilePicture().getFileName(), bucketName);
                 profilePictureRepository.deleteById(userEntity.getProfilePicture().getId());

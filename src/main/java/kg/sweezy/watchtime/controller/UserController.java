@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDtoResponse> register(@RequestBody UserDtoRequest userDtoRequest, @RequestParam(required = false) MultipartFile profilePicture) {
+    public ResponseEntity<UserDtoResponse> register(@ModelAttribute("user") UserDtoRequest userDtoRequest, @RequestPart(required = false) MultipartFile profilePicture) {
         return ResponseEntity.ok(UserMapper.mapEntityToDtoResponse(userService.register(UserMapper.mapDtoToEntity(userDtoRequest), profilePicture)));
     }
 
