@@ -39,7 +39,6 @@ public class UserMapper {
         UserDtoPreview userDtoPreview = UserDtoPreview.builder()
                 .id(userEntity.getId())
                 .username(userEntity.getUsername())
-                .subscribers(userEntity.getSubscribers())
                 .dateCreated(userEntity.getDateCreated())
                 .build();
         if(userEntity.getProfilePicture() != null){

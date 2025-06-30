@@ -12,7 +12,6 @@ import java.time.LocalDate;
 public class UserDtoPreview {
     private Long id;
     private String username;
-    private Long subscribers;
     private LocalDate dateCreated;
     private ImageDto profilePicture;
 }

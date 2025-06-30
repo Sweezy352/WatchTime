@@ -32,6 +32,8 @@ public class VideoEntity extends BaseEntity {
     private String fileName;
     @OneToOne(mappedBy = "video", fetch = FetchType.EAGER)
     private PreviewVideoEntity previewVideo;
+    @OneToMany(mappedBy = "video",fetch = FetchType.EAGER)
+    private List<CommentEntity> comments;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private UserEntity user;

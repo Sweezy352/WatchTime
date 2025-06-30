@@ -24,6 +24,11 @@ public class RoleEntity extends BaseEntity implements GrantedAuthority {
     )
     private List<UserEntity> users;
 
+    @PrePersist
+    public void prePersist(){
+        if(roleName.isEmpty())roleName = "ACTIVE";
+    }
+
     @Override
     public String getAuthority() {
         return roleName;

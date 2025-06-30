@@ -9,6 +9,6 @@ values ('ACTIVE'),
        ('MUTED');
 
 create table if not exists m2m_users_roles(
-    role_id bigint references roles(id),
+    role_id bigint references roles(id) default 1,
     user_id bigint references users(id)
 );
