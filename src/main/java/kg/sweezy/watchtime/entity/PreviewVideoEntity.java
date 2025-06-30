@@ -1,15 +1,15 @@
 package kg.sweezy.watchtime.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "preview_video")
 @RequiredArgsConstructor
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 public class PreviewVideoEntity extends BaseEntity {
     @Column(name = "file_name", nullable = false, unique = true)
     private String fileName;
