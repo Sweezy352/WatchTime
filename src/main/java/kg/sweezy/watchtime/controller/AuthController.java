@@ -1,6 +1,7 @@
 package kg.sweezy.watchtime.controller;
 
 import kg.sweezy.watchtime.dto.UserDtoResponse;
+import kg.sweezy.watchtime.entity.UserEntity;
 import kg.sweezy.watchtime.exception.AuthenticationException;
 import kg.sweezy.watchtime.mapper.UserMapper;
 import kg.sweezy.watchtime.service.AuthService;
@@ -24,6 +25,9 @@ public class AuthController {
 
     @GetMapping("/get-current")
     public UserDtoResponse getCurrent() throws AuthenticationException {
+        UserEntity userEntity = authService.getCurrentUser();
+        System.out.println(userEntity.getRoles().isEmpty());
+        System.out.println(userEntity.getRoles().get(0).getRoleName());
         return UserMapper.mapEntityToDtoResponse(authService.getCurrentUser());
     }
 }

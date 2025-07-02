@@ -28,6 +28,11 @@ public class UserMapper {
                 .isPremium(userEntity.getIsPremium())
                 .dateCreated(userEntity.getDateCreated())
                 .build();
+                if(userEntity.getSubscriptionList() != null)userDtoResponse.setSubscriptionList(mapEntityToDtoPreviewList(userEntity.getSubscriptionList()));
+                if(userEntity.getVideos() != null)userDtoResponse.setVideoChannelList(VideoMapper.mapVideoEntityListToVideoDtoPreviewList(userEntity.getVideos()));
+                if(userEntity.getVideoLiked() != null)userDtoResponse.setVideoLikedList(VideoMapper.mapVideoEntityListToVideoDtoPreviewList(userEntity.getVideos()));
+                if(userEntity.getVideoPlayList() != null)userDtoResponse.setVideoPlayList(VideoMapper.mapVideoEntityListToVideoDtoPreviewList(userEntity.getVideos()));
+
         if(userEntity.getProfilePicture() != null){
             ProfilePictureEntity profilePictureEntity = userEntity.getProfilePicture();
             userDtoResponse.setProfilePicture(ImageMapper.mapToImageDto(profilePictureEntity.getId(), profilePictureEntity.getFileName()));

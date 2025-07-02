@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class AuthenticationException extends BaseException {
-    public AuthenticationException(String message) {
+public class VideoUploadException extends BaseException {
+    public VideoUploadException(String message) {
         super(message);
     }
 }

@@ -36,7 +36,7 @@ public class VideoEntity extends BaseEntity {
     private List<CommentEntity> comments;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
-    private UserEntity user;
+    private UserEntity channel;
 
     @PrePersist
     public void prePersist(){
