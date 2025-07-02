@@ -3,6 +3,7 @@ package kg.sweezy.watchtime.dto;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
@@ -17,4 +18,8 @@ public class UserDtoResponse {
     private Boolean isPremium;
     private LocalDate dateCreated;
     private ImageDto profilePicture;
+    private List<UserDtoPreview> subscriptionList;
+    private List<VideoDtoPreview> videoChannelList;
+    private List<VideoDtoPreview> videoLikedList;
+    private List<VideoDtoPreview> videoPlayList;
 }

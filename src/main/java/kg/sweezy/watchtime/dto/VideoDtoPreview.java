@@ -3,24 +3,18 @@ package kg.sweezy.watchtime.dto;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
-public class VideoDtoResponse {
+public class VideoDtoPreview {
     private Long id;
     private String fileName;
     private String title;
-    private String description;
     private Long views;
-    private Long likes;
-    private Long dislikes;
-    private Long amountComments;
+    private ImageDto videoPreview;
     private LocalDate dateCreated;
-    private ImageDto previewImage;
     private UserDtoPreview channel;
-    private List<CommentDtoResponse> comments;
 }

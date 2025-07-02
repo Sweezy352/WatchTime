@@ -34,17 +34,24 @@ public class UserEntity extends BaseEntity implements UserDetails {
     @ManyToMany(mappedBy = "users",fetch = FetchType.EAGER)
     private List<RoleEntity> roles;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "m2m_subscription_users",
+            joinColumns = @JoinColumn(name = "subscriber_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "channel_id", referencedColumnName = "id", unique = true)
+    )
+    private List<UserEntity> subscriptionList;
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "m2m_subscribers_users",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id_subscriber", referencedColumnName = "id", unique = true)
+            inverseJoinColumns = @JoinColumn(name = "user_id_subscriber", referencedColumnName = "id")
     )
-    private List<UserEntity> subscribtionList;
+    private List<UserEntity> subscribersList;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private ProfilePictureEntity profilePicture;
 
-    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "channel",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<VideoEntity> videos;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -70,7 +77,7 @@ public class UserEntity extends BaseEntity implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true),
             inverseJoinColumns = @JoinColumn(name = "comment_id", referencedColumnName = "id")
     )
-    private List<CommentEntity> comments;
+    private List<CommentEntity> commentsLiked;
 
     @PrePersist
     public void prePersist(){
