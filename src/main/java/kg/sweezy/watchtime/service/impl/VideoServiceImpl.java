@@ -49,6 +49,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public VideoEntity getVideoById(Long id) {
+        mediaService.viewVideoById(id);
         return videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
     }
 

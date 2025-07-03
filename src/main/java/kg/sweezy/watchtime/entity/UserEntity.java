@@ -60,11 +60,20 @@ public class UserEntity extends BaseEntity implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "video_id", referencedColumnName = "id", unique = true)
     )
     private List<VideoEntity> videoLiked;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "m2m_dislikes_videos",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "video_id", referencedColumnName = "id", unique = true)
+    )
+    private List<VideoEntity> videoDisliked;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "m2m_play_list_videos",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "video_id", referencedColumnName = "id", unique = true)
     )
+
     private List<VideoEntity> videoPlayList;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "m2m_history_videos",
