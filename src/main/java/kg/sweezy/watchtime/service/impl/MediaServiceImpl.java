@@ -1,10 +1,9 @@
 package kg.sweezy.watchtime.service.impl;
 
+import kg.sweezy.watchtime.entity.MediaBaseEntity;
 import kg.sweezy.watchtime.entity.UserEntity;
 import kg.sweezy.watchtime.entity.VideoEntity;
-import kg.sweezy.watchtime.exception.SubscribtionFailedException;
-import kg.sweezy.watchtime.exception.UserNotFoundException;
-import kg.sweezy.watchtime.exception.VideoNotFoundException;
+import kg.sweezy.watchtime.exception.*;
 import kg.sweezy.watchtime.repository.UserRepository;
 import kg.sweezy.watchtime.repository.VideoRepository;
 import kg.sweezy.watchtime.service.AuthService;
@@ -33,6 +32,8 @@ public class MediaServiceImpl implements MediaService {
     public String subscribeByChannelId(Long channelId) {
         UserEntity subscriber = authService.getCurrentUser();
         UserEntity channel = userRepository.findById(channelId).orElseThrow(() -> new UserNotFoundException("error.userNotFound"));
+        if(subscriber == null) throw new AuthenticationException("error.authentication");
+
         if(subscriber != null && channel != null){
             if(!subscriber.getSubscriptionList().contains(channel)) {
                 subscriber.getSubscriptionList().add(channel);
@@ -41,7 +42,7 @@ public class MediaServiceImpl implements MediaService {
                 userRepository.saveAndFlush(channel);
                 userRepository.saveAndFlush(subscriber);
                 return manageTranslation.getTranslation("success.subscription");
-            }else{
+            }else if(subscriber.getSubscriptionList().contains(channel)){
                 subscriber.getSubscriptionList().remove(channel);
                 channel.getSubscribersList().remove(subscriber);
                 userRepository.saveAndFlush(channel);
@@ -53,8 +54,8 @@ public class MediaServiceImpl implements MediaService {
     }
 
     @Override
-    public void viewVideoById(Long videoId) {
-        VideoEntity videoEntity = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
+    public void viewVideoByEntity(VideoEntity videoEntity) {
+        if(videoEntity == null) throw new VideoNotFoundException("error.videoNotFound");
         videoEntity.setViews(videoEntity.getViews() + 1);
         videoRepository.saveAndFlush(videoEntity);
     }
@@ -69,6 +70,7 @@ public class MediaServiceImpl implements MediaService {
         if(!userLiked.getVideoLiked().contains(videoEntity) && userLiked.getVideoDisliked().contains(videoEntity)) {
             userLiked.getVideoDisliked().remove(videoEntity);
             userLiked.getVideoLiked().add(videoEntity);
+            videoEntity.setDislikes(videoEntity.getDislikes() - 1);
             videoEntity.setLikes(videoEntity.getLikes() + 1);
         }
         else if(!userLiked.getVideoLiked().contains(videoEntity) && !userLiked.getVideoDisliked().contains(videoEntity)) {
@@ -92,11 +94,12 @@ public class MediaServiceImpl implements MediaService {
         if(!userDisliked.getVideoDisliked().contains(videoEntity) && userDisliked.getVideoLiked().contains(videoEntity)) {
             userDisliked.getVideoLiked().remove(videoEntity);
             userDisliked.getVideoDisliked().add(videoEntity);
+            videoEntity.setLikes(videoEntity.getLikes() - 1);
             videoEntity.setDislikes(videoEntity.getDislikes() + 1);
         }
         else if(!userDisliked.getVideoDisliked().contains(videoEntity) && !userDisliked.getVideoLiked().contains(videoEntity)) {
             userDisliked.getVideoDisliked().add(videoEntity);
-            videoEntity.setDislikes(videoEntity.getDislikes() - 1);
+            videoEntity.setDislikes(videoEntity.getDislikes() + 1);
         }
         else{
             userDisliked.getVideoDisliked().remove(videoEntity);
@@ -104,5 +107,45 @@ public class MediaServiceImpl implements MediaService {
         }
         userRepository.saveAndFlush(userDisliked);
         videoRepository.saveAndFlush(videoEntity);
+    }
+
+    @Override
+    public void addToPlayList(Long videoId) {
+        UserEntity userEntity = authService.getCurrentUser();
+        VideoEntity videoEntity = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
+        if(userEntity == null) throw new UserNotFoundException("error.authentication");
+
+        if(!userEntity.getVideoPlayList().contains(videoEntity)) {
+            userEntity.getVideoPlayList().add(videoEntity);
+        }else{
+            userEntity.getVideoPlayList().remove(videoEntity);
+        }
+        userRepository.saveAndFlush(userEntity);
+    }
+
+    @Override
+    public void removeFromPlayList(Long videoId) {
+        UserEntity userEntity = authService.getCurrentUser();
+        VideoEntity videoEntity = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
+        if(userEntity == null) throw new UserNotFoundException("error.authentication");
+
+        if(!userEntity.getVideoPlayList().contains(videoEntity)) throw new DoesNotExistInPlayListException("error.videoDoesNotExistInPlayList");
+        userEntity.getVideoPlayList().remove(videoEntity);
+        userRepository.saveAndFlush(userEntity);
+    }
+
+    @Override
+    public void addVideoToHistory(VideoEntity videoEntity) {
+        UserEntity userEntity = authService.getCurrentUser();
+        if(userEntity == null) return;
+        if(videoEntity == null) throw new VideoNotFoundException("error.videoNotFound");
+
+        if(!userEntity.getVideoHistory().contains(videoEntity)) {
+            userEntity.getVideoHistory().add(videoEntity);
+        } else if (userEntity.getVideoHistory().contains(videoEntity)) {
+            userEntity.getVideoHistory().remove(videoEntity);
+            userEntity.getVideoHistory().add(videoEntity);
+        }
+        userRepository.saveAndFlush(userEntity);
     }
 }

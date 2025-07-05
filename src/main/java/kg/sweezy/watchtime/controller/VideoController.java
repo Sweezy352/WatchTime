@@ -36,8 +36,8 @@ public class VideoController {
         return ResponseEntity.ok(VideoMapper.mapVideoEntityToVideoDtoResponse(videoService.uploadVideo(VideoMapper.mapVideoDtoRequestToVideoEntity(videoDtoRequest), videoFile, videoPreviewFile)));
     }
 
-    @GetMapping("/get-by-id")
-    public ResponseEntity<VideoDtoResponse> getVideoById(@RequestParam Long videoId){
+    @GetMapping("/get-by-id/{videoId}")
+    public ResponseEntity<VideoDtoResponse> getVideoById(@PathVariable Long videoId){
         return ResponseEntity.ok(VideoMapper.mapVideoEntityToVideoDtoResponse(videoService.getVideoById(videoId)));
     }
 

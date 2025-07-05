@@ -25,9 +25,6 @@ public class AuthController {
 
     @GetMapping("/get-current")
     public UserDtoResponse getCurrent() throws AuthenticationException {
-        UserEntity userEntity = authService.getCurrentUser();
-        System.out.println(userEntity.getRoles().isEmpty());
-        System.out.println(userEntity.getRoles().get(0).getRoleName());
         return UserMapper.mapEntityToDtoResponse(authService.getCurrentUser());
     }
 }

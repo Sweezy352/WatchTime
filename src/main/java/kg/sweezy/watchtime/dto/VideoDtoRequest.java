@@ -10,5 +10,4 @@ import lombok.*;
 public class VideoDtoRequest {
     private String title;
     private String description;
-
 }

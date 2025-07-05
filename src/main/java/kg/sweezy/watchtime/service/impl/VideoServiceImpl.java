@@ -2,6 +2,7 @@ package kg.sweezy.watchtime.service.impl;
 
 import kg.sweezy.watchtime.entity.UserEntity;
 import kg.sweezy.watchtime.entity.VideoEntity;
+import kg.sweezy.watchtime.exception.AuthenticationException;
 import kg.sweezy.watchtime.exception.NotNullVideoException;
 import kg.sweezy.watchtime.exception.VideoNotFoundException;
 import kg.sweezy.watchtime.exception.VideoUploadException;
@@ -36,21 +37,26 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public VideoEntity uploadVideo(VideoEntity videoEntity, MultipartFile videoFile, MultipartFile videoPreview) {
         UserEntity userEntity = authService.getCurrentUser();
-        if(userEntity != null){
+        if(userEntity == null) throw new AuthenticationException("error.authentication");
+
             if(videoEntity == null || videoFile.isEmpty() || videoPreview.isEmpty()) throw new NotNullVideoException("error.videoEntity");
+            if(videoEntity.getTitle().replace(" ", "").isEmpty()
+                    || videoPreview.getOriginalFilename().replace(" ", "").isEmpty()
+                    || videoEntity.getDescription().replace(" ", "").isEmpty()) throw new VideoUploadException("error.videoEntity");
+
             videoEntity = videoMinIoService.uploadVideo(videoEntity, videoFile);
             videoEntity.setChannel(userEntity);
             VideoEntity video =  videoRepository.save(videoEntity);
             video.setPreviewVideo(previewVideoRepository.save(videoMinIoService.uploadVideoPreview(videoEntity, videoPreview)));
             return video;
-        }
-        throw new VideoUploadException("error.uploadVideo");
     }
 
     @Override
     public VideoEntity getVideoById(Long id) {
-        mediaService.viewVideoById(id);
-        return videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
+        VideoEntity videoEntity = videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
+        mediaService.viewVideoByEntity(videoEntity);
+        mediaService.addVideoToHistory(videoEntity);
+        return videoEntity;
     }
 
     @Override
@@ -67,7 +73,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public String deleteVideo(Long id) {
         VideoEntity videoEntity = videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
-        if(videoEntity.getChannel() != authService.getCurrentUser()) throw new VideoNotFoundException("error.videoNotFound");
+        if(!videoEntity.getChannel().getUsername().equals(authService.getCurrentUser().getUsername())) throw new VideoNotFoundException("error.videoNotFound");
         videoMinIoService.deleteVideoPreviewByFileName(videoEntity.getPreviewVideo().getFileName());
         videoMinIoService.deleteVideoByFileName(videoEntity.getFileName());
         videoRepository.delete(videoEntity);

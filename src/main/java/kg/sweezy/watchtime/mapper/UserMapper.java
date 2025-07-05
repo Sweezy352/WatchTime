@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 public class UserMapper {
     public static UserEntity mapDtoToEntity(UserDtoRequest userDtoRequest){
         return new UserEntity().builder()
-                .username(userDtoRequest.getUsername())
+                .username(userDtoRequest.getUsername().replace(" ", ""))
                 .password(userDtoRequest.getPassword())
-                .email(userDtoRequest.getEmail())
+                .email(userDtoRequest.getEmail().replace(" ", ""))
                 .build();
     }
 
@@ -30,8 +30,8 @@ public class UserMapper {
                 .build();
                 if(userEntity.getSubscriptionList() != null)userDtoResponse.setSubscriptionList(mapEntityToDtoPreviewList(userEntity.getSubscriptionList()));
                 if(userEntity.getVideos() != null)userDtoResponse.setVideoChannelList(VideoMapper.mapVideoEntityListToVideoDtoPreviewList(userEntity.getVideos()));
-                if(userEntity.getVideoLiked() != null)userDtoResponse.setVideoLikedList(VideoMapper.mapVideoEntityListToVideoDtoPreviewList(userEntity.getVideos()));
-                if(userEntity.getVideoPlayList() != null)userDtoResponse.setVideoPlayList(VideoMapper.mapVideoEntityListToVideoDtoPreviewList(userEntity.getVideos()));
+                if(userEntity.getVideoLiked() != null)userDtoResponse.setVideoLikedList(VideoMapper.mapVideoEntityListToVideoDtoPreviewList(userEntity.getVideoLiked()));
+                if(userEntity.getVideoPlayList() != null)userDtoResponse.setVideoPlayList(VideoMapper.mapVideoEntityListToVideoDtoPreviewList(userEntity.getVideoPlayList()));
 
         if(userEntity.getProfilePicture() != null){
             ProfilePictureEntity profilePictureEntity = userEntity.getProfilePicture();

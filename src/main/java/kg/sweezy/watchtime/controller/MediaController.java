@@ -4,6 +4,7 @@ import kg.sweezy.watchtime.service.AuthService;
 import kg.sweezy.watchtime.service.MediaService;
 import kg.sweezy.watchtime.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,8 +20,32 @@ public class MediaController {
         this.mediaService = mediaService;
     }
 
-    @PostMapping("/api/subscribe")
+    @PostMapping("/subscribe")
     public String subscribeByChannelId(@RequestParam Long channelId){
         return mediaService.subscribeByChannelId(channelId);
+    }
+
+    @PostMapping("/like-video-by-id")
+    public ResponseEntity<?> likeVideoById(@RequestParam Long videoId){
+        mediaService.likeVideoById(videoId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/dislike-video-by-id")
+    public ResponseEntity<?> dislikeVideoById(@RequestParam Long videoId){
+        mediaService.dislikeVideoById(videoId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/add-to-play-list-by-id")
+    public ResponseEntity<?> addToPlayListById(@RequestParam Long videoId){
+        mediaService.addToPlayList(videoId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/remove-from-play-list-by-id")
+    public ResponseEntity<?> removeFromPlayListById(@RequestParam Long videoId){
+        mediaService.removeFromPlayList(videoId);
+        return ResponseEntity.ok().build();
     }
 }

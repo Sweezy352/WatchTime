@@ -1,1 +1,0 @@
-alter table m2m_history_videos drop constraint m2m_history_videos_video_id_key

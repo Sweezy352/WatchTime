@@ -16,6 +16,7 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class UserEntity extends BaseEntity implements UserDetails {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
