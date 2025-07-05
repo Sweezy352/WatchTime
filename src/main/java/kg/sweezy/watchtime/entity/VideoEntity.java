@@ -13,21 +13,12 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
-public class VideoEntity extends BaseEntity {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+public class VideoEntity extends MediaBaseEntity {
     @Column(name = "title", nullable = false)
     private String title;
     @Column(name = "description", nullable = false)
     private String description;
-    @Column(name = "views")
-    private Long views;
-    @Column(name = "likes")
-    private Long likes;
-    @Column(name = "dislikes")
-    private Long dislikes;
-    @Column(name = "amount_comments")
-    private Long amountComments;
-    @Column(name = "date_created")
-    private LocalDate dateCreated;
     @Column(name = "file_name", nullable = false, unique = true)
     private String fileName;
     @OneToOne(mappedBy = "video", fetch = FetchType.EAGER)

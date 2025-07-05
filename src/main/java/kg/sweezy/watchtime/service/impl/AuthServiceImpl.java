@@ -38,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("----->>>> Пришел пароль: " + password);
         UserEntity user = userRepository.findByUsername(username).orElseThrow(() -> new AuthenticationException("error.authentication"));
         log.info("----->>>> Пароль пользователя: " + user.getPassword());
-        if(!passwordEncoder.matches(password, user.getPassword()));
+        if(!passwordEncoder.matches(password, user.getPassword())) throw new AuthenticationException("error.authentication");
         return jwtHandler.jwtGenerateToken(user);
     }
 

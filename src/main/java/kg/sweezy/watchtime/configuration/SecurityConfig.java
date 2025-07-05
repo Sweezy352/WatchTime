@@ -44,18 +44,22 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> {
                     authorizeRequests.requestMatchers("/").permitAll();
                     authorizeRequests.requestMatchers("/api/auth/login").permitAll();
-                    authorizeRequests.requestMatchers("/api/users/register").permitAll();
                     authorizeRequests.requestMatchers("/api/auth/get-current").permitAll();
-                    authorizeRequests.requestMatchers("/api/users/get-all").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/users/register").permitAll();
+                    authorizeRequests.requestMatchers("/api/users/get-by-id/**").permitAll();
+                    authorizeRequests.requestMatchers("/api/users/get-all").permitAll();
                     authorizeRequests.requestMatchers("/api/profile-picture/upload-to-user").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.requestMatchers("/api/profile-picture/get-by-file-name").permitAll();
                     authorizeRequests.requestMatchers("/api/profile-picture/delete-by-user").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.requestMatchers("/api/video/upload-video").hasAnyAuthority("ACTIVE", "MUTED");
-                    authorizeRequests.requestMatchers("/api/video/get-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/video/get-by-id/**").permitAll();
                     authorizeRequests.requestMatchers("/api/video/get-all").permitAll();
                     authorizeRequests.requestMatchers("/api/video/get-all-by-channel-id").permitAll();
                     authorizeRequests.requestMatchers("/api/video/stream-video-by-file-name").permitAll();
                     authorizeRequests.requestMatchers("/api/video/stream-preview-by-file-name").permitAll();
+
+                    authorizeRequests.requestMatchers("/api/media/liked-video-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/media/dislike-video-by-id").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.anyRequest().authenticated();
                 }).sessionManagement(sessionManagement -> {
                     sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
