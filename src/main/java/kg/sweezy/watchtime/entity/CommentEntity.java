@@ -12,15 +12,10 @@ import java.time.LocalDate;
 @Setter
 @Builder
 @AllArgsConstructor
-public class CommentEntity extends BaseEntity{
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+public class CommentEntity extends MediaBaseEntity{
     @Column(name = "content", nullable = false)
     private String content;
-    @Column(name = "likes")
-    private Long likes;
-    @Column(name = "dislikes")
-    private Long dislikes;
-    @Column(name = "date_created")
-    private LocalDate dateCreated;
     @ManyToOne
     @JoinColumn(name = "video_id", referencedColumnName = "id")
     private VideoEntity video;
