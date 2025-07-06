@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-public interface VideoService {
+public interface VideoService extends MediaBaseService{
     public VideoEntity uploadVideo(VideoEntity videoEntity, MultipartFile videoFile, MultipartFile videoPreview);
     public VideoEntity getVideoById(Long id);
     public List<VideoEntity> getAllVideos();

@@ -7,8 +7,10 @@ import kg.sweezy.watchtime.exception.NotNullVideoException;
 import kg.sweezy.watchtime.exception.VideoNotFoundException;
 import kg.sweezy.watchtime.exception.VideoUploadException;
 import kg.sweezy.watchtime.repository.PreviewVideoRepository;
+import kg.sweezy.watchtime.repository.UserRepository;
 import kg.sweezy.watchtime.repository.VideoRepository;
 import kg.sweezy.watchtime.service.*;
+import kg.sweezy.watchtime.utils.ManageTranslation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,22 +18,23 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
-public class VideoServiceImpl implements VideoService {
+public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implements VideoService {
     private final VideoRepository videoRepository;
     private final AuthService authService;
+    private final UserRepository userRepository;
     private final VideoMinIoService videoMinIoService;
     private final PreviewVideoRepository previewVideoRepository;
     private final UserService userService;
-    private final MediaService mediaService;
 
     @Autowired
-    public VideoServiceImpl(VideoRepository videoRepository, AuthService authService, VideoMinIoService videoMinIoService, PreviewVideoRepository previewVideoRepository, UserService userService, MediaService mediaService) {
+    public VideoServiceImpl(VideoRepository videoRepository, AuthService authService, UserRepository userRepository, ManageTranslation manageTranslation, VideoMinIoService videoMinIoService, PreviewVideoRepository previewVideoRepository, UserService userService ) {
+        super(authService, manageTranslation);
         this.videoRepository = videoRepository;
         this.authService = authService;
+        this.userRepository = userRepository;
         this.videoMinIoService = videoMinIoService;
         this.previewVideoRepository = previewVideoRepository;
         this.userService = userService;
-        this.mediaService = mediaService;
     }
 
     @Override
@@ -54,8 +57,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public VideoEntity getVideoById(Long id) {
         VideoEntity videoEntity = videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
-        mediaService.viewVideoByEntity(videoEntity);
-        mediaService.addVideoToHistory(videoEntity);
+        viewByMediaEntity(id);
         return videoEntity;
     }
 
@@ -78,5 +80,40 @@ public class VideoServiceImpl implements VideoService {
         videoMinIoService.deleteVideoByFileName(videoEntity.getFileName());
         videoRepository.delete(videoEntity);
         return "success.deleteVideo";
+    }
+
+    @Override
+    protected VideoEntity findMediaById(Long id) {
+        return videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
+    }
+
+    @Override
+    protected List<VideoEntity> getLiked(UserEntity userEntity) {
+        return userEntity.getVideoLiked();
+    }
+
+    @Override
+    protected List<VideoEntity> getDisliked(UserEntity userEntity) {
+        return userEntity.getVideoDisliked();
+    }
+
+    @Override
+    protected List<VideoEntity> getPlayList(UserEntity userEntity) {
+        return userEntity.getVideoPlayList();
+    }
+
+    @Override
+    protected List<VideoEntity> getHistory(UserEntity userEntity) {
+        return userEntity.getVideoHistory();
+    }
+
+    @Override
+    protected void saveUser(UserEntity user) {
+        userRepository.saveAndFlush(user);
+    }
+
+    @Override
+    protected void saveMedia(VideoEntity media) {
+        videoRepository.saveAndFlush(media);
     }
 }

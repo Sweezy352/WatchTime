@@ -10,4 +10,5 @@ public interface UserService {
     public UserEntity getUserById(Long id);
     public List<UserEntity> getAllByUsername(String username);
     public List<UserEntity> getAllUsers();
+    public String subscribeByChannelId(Long channelId);
 }
