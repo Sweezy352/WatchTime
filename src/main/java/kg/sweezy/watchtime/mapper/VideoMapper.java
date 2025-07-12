@@ -31,7 +31,6 @@ public class VideoMapper {
                 .build();
         if(videoEntity.getPreviewVideo() != null) videoDtoResponse.setPreviewImage(ImageMapper.mapToImageDto(videoEntity.getPreviewVideo().getId(), videoEntity.getPreviewVideo().getFileName()));
         if(videoEntity.getChannel() != null) videoDtoResponse.setChannel(UserMapper.mapEntityToDtoPreview(videoEntity.getChannel()));
-        if(videoEntity.getComments() != null) videoDtoResponse.setComments(CommentsMapper.mapEntityListToDtoResponseList(videoEntity.getComments()));
         return videoDtoResponse;
     }
 

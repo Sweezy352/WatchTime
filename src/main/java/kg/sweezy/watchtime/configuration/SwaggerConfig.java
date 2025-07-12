@@ -9,13 +9,14 @@ import org.springframework.context.annotation.Configuration;
 @OpenAPIDefinition(info = @Info(
         title = "WatchTime project",
         version = "0.0.1",
-        description = "проект для просмотра контента в Кыргызстане, и соревнования между каналами"
+        description = "Мини копия ютуба под названием WatchTime, документация для работы с серверной частью для формирования запросов и определения функционала пользовательского интерфейса"
 ))
 
 @SecurityScheme(
-        name = "basic",
+        name = "bearerAuth",
         type = SecuritySchemeType.HTTP,
-        scheme = "basic"
+        scheme = "bearer",
+        bearerFormat = "JWT"
 )
 @Configuration
 public class SwaggerConfig {

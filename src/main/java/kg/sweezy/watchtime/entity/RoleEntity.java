@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity

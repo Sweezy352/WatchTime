@@ -1,5 +1,6 @@
 package kg.sweezy.watchtime.service.impl;
 
+import kg.sweezy.watchtime.dto.UserDtoPreview;
 import kg.sweezy.watchtime.entity.RoleEntity;
 import kg.sweezy.watchtime.entity.UserEntity;
 import kg.sweezy.watchtime.exception.AuthenticationException;
@@ -12,6 +13,9 @@ import kg.sweezy.watchtime.service.ProfilePictureService;
 import kg.sweezy.watchtime.service.UserService;
 import kg.sweezy.watchtime.utils.ManageTranslation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +42,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CachePut(value = "users", key = "#user.id")
+    @CacheEvict(value = "users", allEntries = true)
     public UserEntity register(UserEntity user, MultipartFile profilePicture) {
         if(user.getUsername().replace(" ", "").isEmpty()
                 || user.getPassword().replace(" ", "").isEmpty()
@@ -54,6 +60,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "#id")
     public UserEntity getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("error.userNotFound"));
     }
@@ -64,11 +71,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users")
     public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
+    @CacheEvict(value = "users", allEntries = true)
     public String subscribeByChannelId(Long channelId) {
         UserEntity subscriber = authService.getCurrentUser();
         UserEntity channel = userRepository.findById(channelId).orElseThrow(() -> new UserNotFoundException("error.userNotFound"));
@@ -91,5 +100,12 @@ public class UserServiceImpl implements UserService {
             }
         }
         return "";
+    }
+
+    @Override
+    public List<UserEntity> getSubscriptionsChannel() {
+        UserEntity userEntity = authService.getCurrentUser();
+        if(userEntity == null) throw new AuthenticationException("error.userNotFound");
+        return userEntity.getSubscriptionList();
     }
 }

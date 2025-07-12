@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Spring Boot Email</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #eeeeee;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+    }
+
+    .header {
+      background-color: #2c3e50;
+      color: #ffffff;
+      text-align: center;
+      padding: 50px 20px; /* Увеличенная высота */
+    }
+
+    .header img {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      margin-bottom: 12px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .header p {
+      margin: 8px 0 0 0;
+      font-size: 14px;
+      color: #cccccc;
+    }
+
+    .content {
+      padding: 50px;
+      height: 300px;
+      color: #333333;
+    }
+
+    .content p {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+      color: #888888;
+      background-color: #f7f7f7;
+    }
+
+    a {
+      color: #1976d2;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="cid:logo">
+      <h1 class="cid:title">%s</h1>
+      <p>From: CodeCraft WatchTime Channel</p>
+    </div>
+    <div class="content">
+      <p>Dear Subscriber,</p>
+      <p>We're excited to share new video from CodeCraft channel. Stay tuned for upcoming content!</p>
+      <p>Thank you for being part of our community.</p>
+      <p>➡️ View the new video on <a href="%s">WatchTime Channel</a>.</p>
+    </div>
+    <div class="footer">
+      You are receiving this email because you subscribed to this channel.<br>
+      &copy; 2025 Dautov Muslim
+    </div>
+  </div>
+</body>
+</html>

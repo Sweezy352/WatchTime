@@ -11,4 +11,5 @@ public interface MinIoService {
     public void insureBucketExist(String bucketName);
     public boolean insureFileExist(String bucketName, String fileName);
     public void deleteFile(String bucketName, String fileName);
+    public Long getFileSize(String bucketName, String fileName);
 }

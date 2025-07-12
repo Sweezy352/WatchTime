@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -82,12 +83,20 @@ public class UserEntity extends BaseEntity implements UserDetails {
             inverseJoinColumns =@JoinColumn(name = "video_id", referencedColumnName = "id")
     )
     private List<VideoEntity> videoHistory;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "m2m_likes_comments",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true),
             inverseJoinColumns = @JoinColumn(name = "comment_id", referencedColumnName = "id")
     )
     private List<CommentEntity> commentsLiked;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "m2m_comments_dislikes",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true),
+            inverseJoinColumns = @JoinColumn(name = "comment_id", referencedColumnName = "id")
+    )
+    private List<CommentEntity> commentsDisliked;
 
     @PrePersist
     public void prePersist(){

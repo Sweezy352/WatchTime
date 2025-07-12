@@ -1,5 +1,6 @@
 package kg.sweezy.watchtime.service;
 
+import kg.sweezy.watchtime.dto.UserDtoPreview;
 import kg.sweezy.watchtime.entity.UserEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,4 +12,5 @@ public interface UserService {
     public List<UserEntity> getAllByUsername(String username);
     public List<UserEntity> getAllUsers();
     public String subscribeByChannelId(Long channelId);
+    public List<UserEntity> getSubscriptionsChannel();
 }

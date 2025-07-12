@@ -1,5 +1,6 @@
 package kg.sweezy.watchtime.service.impl;
 
+import kg.sweezy.watchtime.entity.CommentEntity;
 import kg.sweezy.watchtime.entity.MediaBaseEntity;
 import kg.sweezy.watchtime.entity.UserEntity;
 import kg.sweezy.watchtime.entity.VideoEntity;
@@ -8,6 +9,7 @@ import kg.sweezy.watchtime.repository.UserRepository;
 import kg.sweezy.watchtime.service.AuthService;
 import kg.sweezy.watchtime.utils.ManageTranslation;
 
+import javax.xml.stream.events.Comment;
 import java.util.List;
 
 public abstract class MediaBaseServiceImpl<T extends MediaBaseEntity>{
@@ -24,10 +26,13 @@ public abstract class MediaBaseServiceImpl<T extends MediaBaseEntity>{
     protected abstract List<T> getDisliked(UserEntity userEntity);
     protected abstract List<T> getPlayList(UserEntity userEntity);
     protected abstract List<T> getHistory(UserEntity userEntity);
+    protected abstract List<CommentEntity> getCommentsMedia(T media);
+    protected abstract CommentEntity saveComment(T media, CommentEntity comment);
     protected abstract void saveUser(UserEntity user);
     protected abstract void saveMedia(T media);
 
     public void viewByMediaEntity(Long id) {
+        UserEntity userEntity = authService.getCurrentUser();
         T media = findMediaById(id);
         media.setViews(media.getViews() + 1);
         saveMedia(media);
@@ -47,7 +52,7 @@ public abstract class MediaBaseServiceImpl<T extends MediaBaseEntity>{
             media.setDislikes(media.getDislikes() - 1);
             media.setLikes(media.getLikes() + 1);
         }
-        else if(likedVideos.contains(media) && dislikedVideos.contains(media)) {
+        else if(!likedVideos.contains(media) && !dislikedVideos.contains(media)) {
             likedVideos.add(media);
             media.setLikes(media.getLikes() + 1);
         }
@@ -125,6 +130,29 @@ public abstract class MediaBaseServiceImpl<T extends MediaBaseEntity>{
             history.remove(media);
             history.add(media);
         }
+        saveUser(userEntity);
+    }
+
+    public CommentEntity addCommentToMedia(Long id, CommentEntity commentEntity){
+        UserEntity userEntity = authService.getCurrentUser();
+        T media = findMediaById(id);
+        if(userEntity == null) throw new AuthenticationException("error.authentication");
+        if(commentEntity == null) throw new CommentBodyEmptyException("error.commentEmptyBody");
+        if(commentEntity.getContent().replace(" ", "").isEmpty()) throw new CommentBodyEmptyException("error.commentEmptyBody");
+
+        List<CommentEntity> comments = getCommentsMedia(media);
+        if(!comments.contains(commentEntity)) comments.add(commentEntity);
+
+        media.setAmountComments(media.getAmountComments() + 1);
+        commentEntity.setUser(userEntity);
+        return saveComment(media, commentEntity);
+    }
+
+    public void addToHistoryVideo(VideoEntity videoEntity){
+        UserEntity userEntity = authService.getCurrentUser();
+        if(userEntity == null) return;
+        if(userEntity.getVideoHistory().contains(videoEntity)) userEntity.getVideoHistory().remove(videoEntity);
+        if(!userEntity.getVideoHistory().contains(videoEntity)) userEntity.getVideoHistory().add(videoEntity);
         saveUser(userEntity);
     }
 }

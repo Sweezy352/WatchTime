@@ -3,6 +3,8 @@ package kg.sweezy.watchtime.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "profile_picture")
 @RequiredArgsConstructor
@@ -10,7 +12,7 @@ import lombok.*;
 @Setter
 @Builder
 @AllArgsConstructor
-public class ProfilePictureEntity extends BaseEntity{
+public class ProfilePictureEntity extends BaseEntity {
     @Column(name = "file_name", nullable = false, unique = true)
     private String fileName;
     @OneToOne(fetch = FetchType.LAZY)

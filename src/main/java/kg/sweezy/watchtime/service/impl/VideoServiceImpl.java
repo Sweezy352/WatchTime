@@ -1,17 +1,22 @@
 package kg.sweezy.watchtime.service.impl;
 
+import kg.sweezy.watchtime.entity.CommentEntity;
 import kg.sweezy.watchtime.entity.UserEntity;
 import kg.sweezy.watchtime.entity.VideoEntity;
 import kg.sweezy.watchtime.exception.AuthenticationException;
 import kg.sweezy.watchtime.exception.NotNullVideoException;
 import kg.sweezy.watchtime.exception.VideoNotFoundException;
 import kg.sweezy.watchtime.exception.VideoUploadException;
+import kg.sweezy.watchtime.repository.CommentRepository;
 import kg.sweezy.watchtime.repository.PreviewVideoRepository;
 import kg.sweezy.watchtime.repository.UserRepository;
 import kg.sweezy.watchtime.repository.VideoRepository;
 import kg.sweezy.watchtime.service.*;
 import kg.sweezy.watchtime.utils.ManageTranslation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,9 +30,11 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
     private final VideoMinIoService videoMinIoService;
     private final PreviewVideoRepository previewVideoRepository;
     private final UserService userService;
+    private final CommentRepository commentRepository;
+    private final MailService mailService;
 
     @Autowired
-    public VideoServiceImpl(VideoRepository videoRepository, AuthService authService, UserRepository userRepository, ManageTranslation manageTranslation, VideoMinIoService videoMinIoService, PreviewVideoRepository previewVideoRepository, UserService userService ) {
+    public VideoServiceImpl(VideoRepository videoRepository, AuthService authService, UserRepository userRepository, ManageTranslation manageTranslation, VideoMinIoService videoMinIoService, PreviewVideoRepository previewVideoRepository, UserService userService, CommentRepository commentRepository, MailService mailService) {
         super(authService, manageTranslation);
         this.videoRepository = videoRepository;
         this.authService = authService;
@@ -35,9 +42,13 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
         this.videoMinIoService = videoMinIoService;
         this.previewVideoRepository = previewVideoRepository;
         this.userService = userService;
+        this.commentRepository = commentRepository;
+        this.mailService = mailService;
     }
 
     @Override
+    @CachePut(value = "videos", key = "videoEntity.id")
+    @CacheEvict(value = "videos", allEntries = true)
     public VideoEntity uploadVideo(VideoEntity videoEntity, MultipartFile videoFile, MultipartFile videoPreview) {
         UserEntity userEntity = authService.getCurrentUser();
         if(userEntity == null) throw new AuthenticationException("error.authentication");
@@ -50,7 +61,7 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
             videoEntity = videoMinIoService.uploadVideo(videoEntity, videoFile);
             videoEntity.setChannel(userEntity);
             VideoEntity video =  videoRepository.save(videoEntity);
-            video.setPreviewVideo(previewVideoRepository.save(videoMinIoService.uploadVideoPreview(videoEntity, videoPreview)));
+            mailService.notifyAllSubscribers(userEntity, video, manageTranslation.getTranslation("success.notifyAboutVideo") + userEntity.getUsername());
             return video;
     }
 
@@ -58,21 +69,25 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
     public VideoEntity getVideoById(Long id) {
         VideoEntity videoEntity = videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
         viewByMediaEntity(id);
+        addToHistoryVideo(videoEntity);
         return videoEntity;
     }
 
     @Override
+    @Cacheable(value = "videos")
     public List<VideoEntity> getAllVideos() {
         return videoRepository.findAll();
     }
 
     @Override
+    @Cacheable(value = "videos", key = "#channelId")
     public List<VideoEntity> getAllVideosByChannel(Long channelId) {
         UserEntity userEntity = userService.getUserById(channelId);
         return userEntity.getVideos();
     }
 
     @Override
+    @CacheEvict(value = "videos", key = "#id", allEntries = true)
     public String deleteVideo(Long id) {
         VideoEntity videoEntity = videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
         if(!videoEntity.getChannel().getUsername().equals(authService.getCurrentUser().getUsername())) throw new VideoNotFoundException("error.videoNotFound");
@@ -80,6 +95,29 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
         videoMinIoService.deleteVideoByFileName(videoEntity.getFileName());
         videoRepository.delete(videoEntity);
         return "success.deleteVideo";
+    }
+
+    @Override
+    @Cacheable(value = "videos")
+    public List<VideoEntity> getLikedVideos() {
+        UserEntity userEntity = authService.getCurrentUser();
+        if(userEntity == null) throw new AuthenticationException("error.authentication");
+        return userEntity.getVideoLiked();
+    }
+
+    @Override
+    @Cacheable(value = "videos")
+    public List<VideoEntity> getPlayListVideos() {
+        UserEntity userEntity = authService.getCurrentUser();
+        if(userEntity == null) throw new AuthenticationException("error.authentication");
+        return userEntity.getVideoPlayList();
+    }
+
+    @Override
+    @Cacheable(value = "videos", key = "#videoId")
+    public List<CommentEntity> getAllCommentsByVideoId(Long videoId) {
+        VideoEntity videoEntity = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
+        return videoEntity.getComments();
     }
 
     @Override
@@ -105,6 +143,18 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
     @Override
     protected List<VideoEntity> getHistory(UserEntity userEntity) {
         return userEntity.getVideoHistory();
+    }
+
+    @Override
+    protected List<CommentEntity> getCommentsMedia(VideoEntity media) {
+        return media.getComments();
+    }
+
+    @Override
+    protected CommentEntity saveComment(VideoEntity media, CommentEntity comment) {
+        CommentEntity commentEntity = commentRepository.save(comment);
+        videoRepository.saveAndFlush(media);
+        return commentEntity;
     }
 
     @Override

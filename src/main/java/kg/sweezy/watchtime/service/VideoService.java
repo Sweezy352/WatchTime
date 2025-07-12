@@ -1,5 +1,6 @@
 package kg.sweezy.watchtime.service;
 
+import kg.sweezy.watchtime.entity.CommentEntity;
 import kg.sweezy.watchtime.entity.VideoEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,4 +12,7 @@ public interface VideoService extends MediaBaseService{
     public List<VideoEntity> getAllVideos();
     public List<VideoEntity> getAllVideosByChannel(Long channelId);
     public String deleteVideo(Long id);
+    public List<VideoEntity> getLikedVideos();
+    public List<VideoEntity> getPlayListVideos();
+    public List<CommentEntity> getAllCommentsByVideoId(Long videoId);
 }
