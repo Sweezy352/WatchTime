@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.sweezy.watchtime.dto.CommentDtoRequest;
 import kg.sweezy.watchtime.dto.CommentDtoResponse;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Контроллер для коментариев")
 @RestController
 @RequestMapping("/api/comment")
+@SecurityRequirement(name = "bearerAuth")
 public class CommentController {
     private final CommentService commentService;
 
@@ -51,8 +53,8 @@ public class CommentController {
             }
     )
     @DeleteMapping("/delete-by-id")
-    public String deleteCommentById(@Parameter(description = "Индентификатор коментария") @RequestParam Long commentId) throws BaseException {
-        return commentService.deleteCommentById(commentId);
+    public String deleteCommentById(@Parameter(description = "Индинтификатор родительского коментария") @RequestParam Long parentCommentId, @Parameter(description = "Индентификатор коментария") @RequestParam Long commentId) throws BaseException {
+        return commentService.deleteCommentFromMedia(parentCommentId, commentId);
     }
 
     @Operation(

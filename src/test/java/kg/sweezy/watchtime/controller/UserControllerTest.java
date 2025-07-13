@@ -113,4 +113,21 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.[0].id").value(3))
                 .andExpect(jsonPath("$.[0].username").value("user"));
     }
+
+    @DirtiesContext
+    @Test
+    void subscribeById() throws Exception {
+        String jwtToken = getJwtToken("Sweezy", "qweqwe");
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users/subscribe")
+                .queryParam("channelId", "2")
+                .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk());
+    }
+
+    @DirtiesContext
+    @Test
+    void unsubscribeById() throws Exception {
+        String jwtToken = getJwtToken("Sweezy", "qweqwe");
+
+    }
 }

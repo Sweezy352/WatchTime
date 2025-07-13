@@ -3,11 +3,13 @@ package kg.sweezy.watchtime.service.impl;
 import kg.sweezy.watchtime.entity.CommentEntity;
 import kg.sweezy.watchtime.entity.MediaBaseEntity;
 import kg.sweezy.watchtime.entity.UserEntity;
+import kg.sweezy.watchtime.entity.VideoEntity;
 import kg.sweezy.watchtime.exception.AuthenticationException;
 import kg.sweezy.watchtime.exception.CommentBodyEmptyException;
 import kg.sweezy.watchtime.exception.CommentNotFound;
 import kg.sweezy.watchtime.repository.CommentRepository;
 import kg.sweezy.watchtime.repository.UserRepository;
+import kg.sweezy.watchtime.repository.VideoRepository;
 import kg.sweezy.watchtime.service.AuthService;
 import kg.sweezy.watchtime.service.CommentService;
 import kg.sweezy.watchtime.utils.ManageTranslation;
@@ -23,14 +25,16 @@ public class CommentServiceImpl extends MediaBaseServiceImpl<CommentEntity> impl
     private final AuthService authService;
     private final ManageTranslation manageTranslation;
     private final UserRepository userRepository;
+    private final VideoRepository videoRepository;
 
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository, AuthService authService, ManageTranslation manageTranslation, UserRepository userRepository) {
-        super(authService, manageTranslation);
+    public CommentServiceImpl(CommentRepository commentRepository, AuthService authService, ManageTranslation manageTranslation, UserRepository userRepository, VideoRepository videoRepository) {
+        super(authService, manageTranslation, commentRepository);
         this.commentRepository = commentRepository;
         this.authService = authService;
         this.manageTranslation = manageTranslation;
         this.userRepository = userRepository;
+        this.videoRepository = videoRepository;
     }
 
     @Override
@@ -91,16 +95,5 @@ public class CommentServiceImpl extends MediaBaseServiceImpl<CommentEntity> impl
         commentFound.setContent(comment.getContent());
         commentFound.setDateCreated(LocalDate.now());
         return commentRepository.saveAndFlush(commentFound);
-    }
-
-    @Override
-    public String deleteCommentById(Long id) {
-        UserEntity userEntity = authService.getCurrentUser();
-        CommentEntity commentFound = commentRepository.findById(id).orElseThrow(() -> new CommentNotFound("error.commentNotFound"));
-        if(userEntity == null) throw new AuthenticationException("error.authentication");
-        if(!commentFound.getUser().equals(userEntity)) throw new AuthenticationException("error.authentication");
-        commentRepository.delete(commentFound);
-
-        return "success.deleteComment";
     }
 }

@@ -9,10 +9,11 @@ import java.util.List;
 public interface VideoService extends MediaBaseService{
     public VideoEntity uploadVideo(VideoEntity videoEntity, MultipartFile videoFile, MultipartFile videoPreview);
     public VideoEntity getVideoById(Long id);
-    public List<VideoEntity> getAllVideos();
+    public List<VideoEntity> getAllVideos(Long afterId, Integer limit);
     public List<VideoEntity> getAllVideosByChannel(Long channelId);
     public String deleteVideo(Long id);
     public List<VideoEntity> getLikedVideos();
     public List<VideoEntity> getPlayListVideos();
     public List<CommentEntity> getAllCommentsByVideoId(Long videoId);
+    public List<VideoEntity> getVideoByTitle(String title);
 }

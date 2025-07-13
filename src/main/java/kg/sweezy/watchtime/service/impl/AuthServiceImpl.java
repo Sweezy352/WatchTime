@@ -13,6 +13,8 @@ import kg.sweezy.watchtime.service.MailService;
 import kg.sweezy.watchtime.utils.ManageTranslation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -58,7 +60,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserEntity getCurrentUser() {
-        return (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) return null;
+        return (UserEntity) authentication.getPrincipal();
     }
 
     @Override

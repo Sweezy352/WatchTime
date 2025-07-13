@@ -9,4 +9,5 @@ public interface MediaBaseService {
     public void removeFromPlayList(Long id);
     public void addMediaToHistory(Long id);
     public CommentEntity addCommentToMedia(Long id, CommentEntity commentEntity);
+    public String deleteCommentFromMedia(Long id, Long commentId);
 }

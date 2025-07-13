@@ -5,6 +5,7 @@ import kg.sweezy.watchtime.entity.MediaBaseEntity;
 import kg.sweezy.watchtime.entity.UserEntity;
 import kg.sweezy.watchtime.entity.VideoEntity;
 import kg.sweezy.watchtime.exception.*;
+import kg.sweezy.watchtime.repository.CommentRepository;
 import kg.sweezy.watchtime.repository.UserRepository;
 import kg.sweezy.watchtime.service.AuthService;
 import kg.sweezy.watchtime.utils.ManageTranslation;
@@ -15,10 +16,12 @@ import java.util.List;
 public abstract class MediaBaseServiceImpl<T extends MediaBaseEntity>{
     protected final AuthService authService;
     protected final ManageTranslation manageTranslation;
+    protected final CommentRepository commentRepository;
 
-    public MediaBaseServiceImpl(AuthService authService, ManageTranslation manageTranslation) {
+    public MediaBaseServiceImpl(AuthService authService, ManageTranslation manageTranslation, CommentRepository commentRepository) {
         this.authService = authService;
         this.manageTranslation = manageTranslation;
+        this.commentRepository = commentRepository;
     }
 
     protected abstract T findMediaById(Long id);
@@ -32,7 +35,6 @@ public abstract class MediaBaseServiceImpl<T extends MediaBaseEntity>{
     protected abstract void saveMedia(T media);
 
     public void viewByMediaEntity(Long id) {
-        UserEntity userEntity = authService.getCurrentUser();
         T media = findMediaById(id);
         media.setViews(media.getViews() + 1);
         saveMedia(media);
@@ -146,6 +148,19 @@ public abstract class MediaBaseServiceImpl<T extends MediaBaseEntity>{
         media.setAmountComments(media.getAmountComments() + 1);
         commentEntity.setUser(userEntity);
         return saveComment(media, commentEntity);
+    }
+
+    public String deleteCommentFromMedia(Long mediaId, Long commentId) {
+        UserEntity userEntity = authService.getCurrentUser();
+        T media = findMediaById(mediaId);
+        CommentEntity commentEntity = commentRepository.findById(commentId).orElseThrow(() -> new CommentNotFound("error.commentNotFound"));
+        if(userEntity == null) throw new UserNotFoundException("error.authentication");
+        if(!commentEntity.getUser().equals(userEntity)) throw new AuthenticationException("error.authentication");
+        List<CommentEntity> comments = getCommentsMedia(media);
+        if(comments.contains(commentEntity)) comments.remove(commentEntity);
+        saveMedia(media);
+        commentRepository.delete(commentEntity);
+        return "success.deleteComment";
     }
 
     public void addToHistoryVideo(VideoEntity videoEntity){

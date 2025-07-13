@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> {
                     authorizeRequests.requestMatchers("/").permitAll();
                     authorizeRequests.requestMatchers("/api/auth/login").permitAll();
-                    authorizeRequests.requestMatchers("/api/auth/get-current").permitAll();
+                    authorizeRequests.requestMatchers("/api/auth/get-current").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.requestMatchers("/api/auth/recovery-password").permitAll();
                     authorizeRequests.requestMatchers("/api/auth/confirm-code/**").permitAll();
 
@@ -73,12 +73,21 @@ public class SecurityConfig {
                     authorizeRequests.requestMatchers("/api/video/get-liked-videos").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.requestMatchers("/api/video/get-play-list").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.requestMatchers("/api/video/get-all-comments-by-video-id").permitAll();
+                    authorizeRequests.requestMatchers("/api/video/get-videos-by-title").permitAll();
 
                     authorizeRequests.requestMatchers("/api/comment/delete-by-id").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.requestMatchers("/api/comment/add-comment-by-id").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.requestMatchers("/api/comment/update-comment-by-id").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.requestMatchers("/api/comment/like-by-id").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.requestMatchers("/api/comment/dislike-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+
+                    authorizeRequests.requestMatchers(
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**",
+                            "/swagger-resources/**",
+                            "/swagger-ui.html",
+                            "/webjars/**"
+                    ).permitAll();
                     authorizeRequests.anyRequest().authenticated();
                 }).sessionManagement(sessionManagement -> {
                     sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);

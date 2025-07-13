@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,24 +62,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "users", key = "#id")
     public UserEntity getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("error.userNotFound"));
     }
 
     @Override
     public List<UserEntity> getAllByUsername(String username) {
-        return List.of();
+        return userRepository.findByUsernameStartingWith(username);
     }
 
     @Override
-    @Cacheable(value = "users")
-    public List<UserEntity> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserEntity> getAllUsers(Long afterId, Integer limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        if(afterId == null) return userRepository.findAll(pageable).getContent();
+        return userRepository.findByIdGreaterThanOrderByIdAsc(afterId, pageable);
     }
 
     @Override
-    @CacheEvict(value = "users", allEntries = true)
     public String subscribeByChannelId(Long channelId) {
         UserEntity subscriber = authService.getCurrentUser();
         UserEntity channel = userRepository.findById(channelId).orElseThrow(() -> new UserNotFoundException("error.userNotFound"));
@@ -94,6 +95,7 @@ public class UserServiceImpl implements UserService {
             }else if(subscriber.getSubscriptionList().contains(channel)){
                 subscriber.getSubscriptionList().remove(channel);
                 channel.getSubscribersList().remove(subscriber);
+                channel.setSubscribers(channel.getSubscribers() - 1);
                 userRepository.saveAndFlush(channel);
                 userRepository.saveAndFlush(subscriber);
                 return manageTranslation.getTranslation("success.unSubscribe");

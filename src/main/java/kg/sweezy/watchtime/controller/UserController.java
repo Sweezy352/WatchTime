@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kg.sweezy.watchtime.dto.UserDtoPreview;
 import kg.sweezy.watchtime.dto.UserDtoRequest;
@@ -20,6 +21,7 @@ import java.util.List;
 @Tag(name = "Контроллер для пользователей")
 @RestController
 @RequestMapping("/api/users")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
     private final UserService userService;
 
@@ -59,12 +61,13 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Метод для получения списка пользователей"
+            summary = "Метод для получения списка пользователей",
+            description = "Реализовывает Infinite scroll и для этого принимает afterId и limit"
     )
     @ApiResponse(responseCode = "200", description = "Успешное получение списка пользователей")
     @GetMapping("/get-all")
-    public ResponseEntity<List<UserDtoPreview>> getAll(){
-        return ResponseEntity.ok(UserMapper.mapEntityToDtoPreviewList(userService.getAllUsers()));
+    public ResponseEntity<List<UserDtoPreview>> getAll(@Parameter(description = "Индинтификатор конечного пользователя при скролле") @RequestParam(required = false) Long afterId, @Parameter(description = "Лимит на выдачу пользователей, по дефолту 10")@RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(UserMapper.mapEntityToDtoPreviewList(userService.getAllUsers(afterId, limit)));
     }
 
     @Operation(
@@ -91,8 +94,15 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.mapEntityToDtoPreviewList(userService.getSubscriptionsChannel()));
     }
 
+    @Operation(
+            summary = "Метод для поиска каналов по их названию"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "404", description = "Канал с таким названием не найден"),
+            @ApiResponse(responseCode = "200", description = "Успешно получен список каналов по названию")
+    })
     @GetMapping("/get-channel-by-name/{name}")
-    public ResponseEntity<List<UserDtoPreview>> getChannelsByName(@PathVariable String name){
-        return null;
+    public ResponseEntity<List<UserDtoPreview>> getChannelsByName(@Parameter(description = "Название канала")@PathVariable String name){
+        return ResponseEntity.ok(UserMapper.mapEntityToDtoPreviewList(userService.getAllByUsername(name)));
     }
 }

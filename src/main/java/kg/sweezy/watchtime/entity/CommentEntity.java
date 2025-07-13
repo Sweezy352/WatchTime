@@ -18,7 +18,7 @@ import java.util.List;
 public class CommentEntity extends MediaBaseEntity {
     @Column(name = "content", nullable = false)
     private String content;
-    @OneToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;
     @ManyToMany(fetch = FetchType.EAGER)

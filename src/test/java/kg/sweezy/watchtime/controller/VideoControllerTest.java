@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Sql(scripts = {"/data/insertRoles.sql", "/data/insertUsers.sql", "/data/insertVideo.sql"})
+@Sql(scripts = {"/data/insertRoles.sql", "/data/insertUsers.sql", "/data/insertVideo.sql", "/data/insertComments.sql"})
 class VideoControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -325,6 +325,34 @@ class VideoControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/video/get-play-list")
                 .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @DirtiesContext
+    @Test
+    void getVideosByTitle() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/video/get-videos-by-title")
+                .queryParam("title", "g"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].title").value("good video"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].title").value("great video"));
+    }
+
+    @DirtiesContext
+    @Test
+    void deleteCommentFromVideo() throws Exception {
+        String jwtToken = getJwtToken("Sweezy", "qweqwe");
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/video/delete-comment-from-video")
+                .queryParam("videoId", "3")
+                .queryParam("commentId", "1")
+                .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/video/get-all-comments-by-video-id")
+                .queryParam("videoId", "3"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }

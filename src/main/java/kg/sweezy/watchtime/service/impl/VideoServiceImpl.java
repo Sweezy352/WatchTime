@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,7 +37,7 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
 
     @Autowired
     public VideoServiceImpl(VideoRepository videoRepository, AuthService authService, UserRepository userRepository, ManageTranslation manageTranslation, VideoMinIoService videoMinIoService, PreviewVideoRepository previewVideoRepository, UserService userService, CommentRepository commentRepository, MailService mailService) {
-        super(authService, manageTranslation);
+        super(authService, manageTranslation, commentRepository);
         this.videoRepository = videoRepository;
         this.authService = authService;
         this.userRepository = userRepository;
@@ -47,8 +49,6 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
     }
 
     @Override
-    @CachePut(value = "videos", key = "videoEntity.id")
-    @CacheEvict(value = "videos", allEntries = true)
     public VideoEntity uploadVideo(VideoEntity videoEntity, MultipartFile videoFile, MultipartFile videoPreview) {
         UserEntity userEntity = authService.getCurrentUser();
         if(userEntity == null) throw new AuthenticationException("error.authentication");
@@ -61,7 +61,9 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
             videoEntity = videoMinIoService.uploadVideo(videoEntity, videoFile);
             videoEntity.setChannel(userEntity);
             VideoEntity video =  videoRepository.save(videoEntity);
-            mailService.notifyAllSubscribers(userEntity, video, manageTranslation.getTranslation("success.notifyAboutVideo") + userEntity.getUsername());
+            video.setPreviewVideo(previewVideoRepository.save(videoMinIoService.uploadVideoPreview(videoEntity, videoPreview)));
+
+        mailService.notifyAllSubscribers(userEntity, video, manageTranslation.getTranslation("success.notifyAboutVideo") + userEntity.getUsername());
             return video;
     }
 
@@ -74,13 +76,14 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
     }
 
     @Override
-    @Cacheable(value = "videos")
-    public List<VideoEntity> getAllVideos() {
-        return videoRepository.findAll();
+    public List<VideoEntity> getAllVideos(Long afterId, Integer limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        if(afterId == null) return videoRepository.findAll(pageable).getContent();
+
+        return videoRepository.findByIdGreaterThanOrderByIdAsc(afterId, pageable);
     }
 
     @Override
-    @Cacheable(value = "videos", key = "#channelId")
     public List<VideoEntity> getAllVideosByChannel(Long channelId) {
         UserEntity userEntity = userService.getUserById(channelId);
         return userEntity.getVideos();
@@ -98,7 +101,6 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
     }
 
     @Override
-    @Cacheable(value = "videos")
     public List<VideoEntity> getLikedVideos() {
         UserEntity userEntity = authService.getCurrentUser();
         if(userEntity == null) throw new AuthenticationException("error.authentication");
@@ -106,7 +108,6 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
     }
 
     @Override
-    @Cacheable(value = "videos")
     public List<VideoEntity> getPlayListVideos() {
         UserEntity userEntity = authService.getCurrentUser();
         if(userEntity == null) throw new AuthenticationException("error.authentication");
@@ -114,10 +115,14 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
     }
 
     @Override
-    @Cacheable(value = "videos", key = "#videoId")
     public List<CommentEntity> getAllCommentsByVideoId(Long videoId) {
         VideoEntity videoEntity = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
         return videoEntity.getComments();
+    }
+
+    @Override
+    public List<VideoEntity> getVideoByTitle(String title) {
+        return videoRepository.findByTitleStartingWith(title);
     }
 
     @Override
