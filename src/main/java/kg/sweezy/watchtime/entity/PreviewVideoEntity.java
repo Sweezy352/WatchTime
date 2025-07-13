@@ -3,6 +3,8 @@ package kg.sweezy.watchtime.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "preview_video")
 @RequiredArgsConstructor

@@ -15,4 +15,5 @@ public interface VideoMinIoService {
     public String getContentTypeVideoPreview(String fileName);
     public void deleteVideoByFileName(String fileName);
     public void deleteVideoPreviewByFileName(String fileName);
+    public Long getFileSizeByFileName(String fileName);
 }

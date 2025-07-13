@@ -44,22 +44,50 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> {
                     authorizeRequests.requestMatchers("/").permitAll();
                     authorizeRequests.requestMatchers("/api/auth/login").permitAll();
-                    authorizeRequests.requestMatchers("/api/auth/get-current").permitAll();
+                    authorizeRequests.requestMatchers("/api/auth/get-current").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/auth/recovery-password").permitAll();
+                    authorizeRequests.requestMatchers("/api/auth/confirm-code/**").permitAll();
+
                     authorizeRequests.requestMatchers("/api/users/register").permitAll();
                     authorizeRequests.requestMatchers("/api/users/get-by-id/**").permitAll();
                     authorizeRequests.requestMatchers("/api/users/get-all").permitAll();
+                    authorizeRequests.requestMatchers("/api/users/subscribe").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/users/get-subscription-channels").hasAnyAuthority("ACTIVE", "MUTED");
+
                     authorizeRequests.requestMatchers("/api/profile-picture/upload-to-user").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.requestMatchers("/api/profile-picture/get-by-file-name").permitAll();
                     authorizeRequests.requestMatchers("/api/profile-picture/delete-by-user").hasAnyAuthority("ACTIVE", "MUTED");
+
                     authorizeRequests.requestMatchers("/api/video/upload-video").hasAnyAuthority("ACTIVE", "MUTED");
                     authorizeRequests.requestMatchers("/api/video/get-by-id/**").permitAll();
                     authorizeRequests.requestMatchers("/api/video/get-all").permitAll();
                     authorizeRequests.requestMatchers("/api/video/get-all-by-channel-id").permitAll();
                     authorizeRequests.requestMatchers("/api/video/stream-video-by-file-name").permitAll();
                     authorizeRequests.requestMatchers("/api/video/stream-preview-by-file-name").permitAll();
+                    authorizeRequests.requestMatchers("/api/video/add-comment-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/video/like-video-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/video/delete-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/video/dislike-video-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/video/add-to-play-list-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/video/remove-from-play-list-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/video/get-liked-videos").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/video/get-play-list").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/video/get-all-comments-by-video-id").permitAll();
+                    authorizeRequests.requestMatchers("/api/video/get-videos-by-title").permitAll();
 
-                    authorizeRequests.requestMatchers("/api/media/liked-video-by-id").hasAnyAuthority("ACTIVE", "MUTED");
-                    authorizeRequests.requestMatchers("/api/media/dislike-video-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/comment/delete-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/comment/add-comment-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/comment/update-comment-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/comment/like-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+                    authorizeRequests.requestMatchers("/api/comment/dislike-by-id").hasAnyAuthority("ACTIVE", "MUTED");
+
+                    authorizeRequests.requestMatchers(
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**",
+                            "/swagger-resources/**",
+                            "/swagger-ui.html",
+                            "/webjars/**"
+                    ).permitAll();
                     authorizeRequests.anyRequest().authenticated();
                 }).sessionManagement(sessionManagement -> {
                     sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);

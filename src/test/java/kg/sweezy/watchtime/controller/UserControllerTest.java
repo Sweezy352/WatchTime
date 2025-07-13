@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Sql(scripts = {"/data/insertRoles.sql", "/data/insertUsers.sql"})
+@Sql(scripts = {"/data/insertRoles.sql", "/data/insertUsers.sql", "/data/insertSubscriptions.sql"})
 class UserControllerTest {
 
     private String getJwtToken(String username, String password) throws Exception {
@@ -100,5 +100,34 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.[0].id").value(1))
                 .andExpect(jsonPath("$.[1].id").value(2))
                 .andExpect(jsonPath("$.[2].id").value(3));
+    }
+
+    @DirtiesContext
+    @Test
+    void getSubscriptionChannels() throws Exception {
+        String jwtToken = getJwtToken("Sweezy", "qweqwe");
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users/get-subscription-channels")
+                .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[0].id").value(3))
+                .andExpect(jsonPath("$.[0].username").value("user"));
+    }
+
+    @DirtiesContext
+    @Test
+    void subscribeById() throws Exception {
+        String jwtToken = getJwtToken("Sweezy", "qweqwe");
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users/subscribe")
+                .queryParam("channelId", "2")
+                .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk());
+    }
+
+    @DirtiesContext
+    @Test
+    void unsubscribeById() throws Exception {
+        String jwtToken = getJwtToken("Sweezy", "qweqwe");
+
     }
 }

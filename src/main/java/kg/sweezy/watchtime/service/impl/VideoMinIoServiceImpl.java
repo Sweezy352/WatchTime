@@ -78,4 +78,9 @@ public class VideoMinIoServiceImpl implements VideoMinIoService {
     public void deleteVideoPreviewByFileName(String fileName) {
         minIoService.deleteFile(bucketNameVideoPreview, fileName);
     }
+
+    @Override
+    public Long getFileSizeByFileName(String fileName) {
+        return minIoService.getFileSize(bucketNameVideo, fileName);
+    }
 }

@@ -2,10 +2,11 @@ package kg.sweezy.watchtime.entity;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @MappedSuperclass
-public abstract class MediaBaseEntity {
+public abstract class MediaBaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

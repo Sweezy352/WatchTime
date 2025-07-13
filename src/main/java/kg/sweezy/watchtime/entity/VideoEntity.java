@@ -3,6 +3,7 @@ package kg.sweezy.watchtime.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,9 +24,13 @@ public class VideoEntity extends MediaBaseEntity {
     private String fileName;
     @OneToOne(mappedBy = "video", fetch = FetchType.EAGER)
     private PreviewVideoEntity previewVideo;
-    @OneToMany(mappedBy = "video",fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "m2m_comments_videos",
+            joinColumns = @JoinColumn(name = "video_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "comment_id", referencedColumnName = "id", unique = true)
+    )
     private List<CommentEntity> comments;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private UserEntity channel;
 

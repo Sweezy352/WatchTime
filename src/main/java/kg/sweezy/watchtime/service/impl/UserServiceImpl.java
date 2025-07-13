@@ -1,5 +1,6 @@
 package kg.sweezy.watchtime.service.impl;
 
+import kg.sweezy.watchtime.dto.UserDtoPreview;
 import kg.sweezy.watchtime.entity.RoleEntity;
 import kg.sweezy.watchtime.entity.UserEntity;
 import kg.sweezy.watchtime.exception.AuthenticationException;
@@ -12,6 +13,11 @@ import kg.sweezy.watchtime.service.ProfilePictureService;
 import kg.sweezy.watchtime.service.UserService;
 import kg.sweezy.watchtime.utils.ManageTranslation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +44,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CachePut(value = "users", key = "#user.id")
+    @CacheEvict(value = "users", allEntries = true)
     public UserEntity register(UserEntity user, MultipartFile profilePicture) {
         if(user.getUsername().replace(" ", "").isEmpty()
                 || user.getPassword().replace(" ", "").isEmpty()
@@ -60,12 +68,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserEntity> getAllByUsername(String username) {
-        return List.of();
+        return userRepository.findByUsernameStartingWith(username);
     }
 
     @Override
-    public List<UserEntity> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserEntity> getAllUsers(Long afterId, Integer limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        if(afterId == null) return userRepository.findAll(pageable).getContent();
+        return userRepository.findByIdGreaterThanOrderByIdAsc(afterId, pageable);
     }
 
     @Override
@@ -85,11 +95,19 @@ public class UserServiceImpl implements UserService {
             }else if(subscriber.getSubscriptionList().contains(channel)){
                 subscriber.getSubscriptionList().remove(channel);
                 channel.getSubscribersList().remove(subscriber);
+                channel.setSubscribers(channel.getSubscribers() - 1);
                 userRepository.saveAndFlush(channel);
                 userRepository.saveAndFlush(subscriber);
                 return manageTranslation.getTranslation("success.unSubscribe");
             }
         }
         return "";
+    }
+
+    @Override
+    public List<UserEntity> getSubscriptionsChannel() {
+        UserEntity userEntity = authService.getCurrentUser();
+        if(userEntity == null) throw new AuthenticationException("error.userNotFound");
+        return userEntity.getSubscriptionList();
     }
 }

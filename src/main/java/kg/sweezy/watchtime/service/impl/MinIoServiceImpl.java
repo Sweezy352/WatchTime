@@ -116,4 +116,17 @@ public class MinIoServiceImpl implements MinIoService {
             throw new FileIsNotExistException("error.fileDoesNotExist");
         }
     }
+
+    @Override
+    public Long getFileSize(String bucketName, String fileName) {
+        try{
+            StatObjectResponse statObjectResponse = minioClient.statObject(StatObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(fileName)
+                    .build());
+            return statObjectResponse.size();
+        }catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

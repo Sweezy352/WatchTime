@@ -24,6 +24,7 @@ public class CommentsMapper {
                 .dateCreated(commentEntity.getDateCreated())
                 .userDtoPreview(UserMapper.mapEntityToDtoPreview(commentEntity.getUser()))
                 .build();
+        if(commentEntity.getComments() != null) commentDtoResponse.setComments(mapEntityListToDtoResponseList(commentEntity.getComments()));
         return commentDtoResponse;
     }
 

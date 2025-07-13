@@ -30,8 +30,6 @@ public class UserMapper {
                 .build();
                 if(userEntity.getSubscriptionList() != null)userDtoResponse.setSubscriptionList(mapEntityToDtoPreviewList(userEntity.getSubscriptionList()));
                 if(userEntity.getVideos() != null)userDtoResponse.setVideoChannelList(VideoMapper.mapVideoEntityListToVideoDtoPreviewList(userEntity.getVideos()));
-                if(userEntity.getVideoLiked() != null)userDtoResponse.setVideoLikedList(VideoMapper.mapVideoEntityListToVideoDtoPreviewList(userEntity.getVideoLiked()));
-                if(userEntity.getVideoPlayList() != null)userDtoResponse.setVideoPlayList(VideoMapper.mapVideoEntityListToVideoDtoPreviewList(userEntity.getVideoPlayList()));
 
         if(userEntity.getProfilePicture() != null){
             ProfilePictureEntity profilePictureEntity = userEntity.getProfilePicture();
