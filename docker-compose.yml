@@ -1,0 +1,75 @@
+services:
+  app:
+    image: watchtime-application:latest
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+      - minio
+      - redis
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/watch_time
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=d2F0Y2h0aW1lLWRhdXRvdi1tdXNsaW0=
+      - SPRING_DATA_REDIS_HOST=172.17.0.4
+      - SPRING_DATA_REDIS_PORT=6379
+      - MINIO_URL=http://172.17.0.3:9000
+      - MINIO_ACCESS-KEY=minioadmin
+      - MINIO_SECRET-KEY=d2F0Y2h0aW1lLWRhdXRvdi1tdXNsaW0=
+      - MINIO_BUCKET_NAME_PROFILEPICTURE=profile-picture
+      - MINIO_BUCKET_NAME_VIDEO=video
+      - MINIO_BUCKET_NAME_PREVIEWVIDEO=preview-video
+    networks:
+      custom_net:
+        ipv4_address: 172.30.0.10
+
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=watch_time
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=d2F0Y2h0aW1lLWRhdXRvdi1tdXNsaW0=
+    networks:
+      custom_net:
+        ipv4_address: 172.30.0.2
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=d2F0Y2h0aW1lLWRhdXRvdi1tdXNsaW0=
+    volumes:
+      - minio-data:/data
+    command:
+      - server
+      - --console-address
+      - ":9001"
+      - /data
+    networks:
+      custom_net:
+        ipv4_address: 172.30.0.3
+
+  redis:
+    image: redis:7.2
+    ports:
+      - 6379:6379
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      custom_net:
+        ipv4_address: 172.30.0.4
+
+volumes:
+  minio-data:
+  redis-data:
+
+networks:
+  custom_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/18

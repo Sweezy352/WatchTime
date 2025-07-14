@@ -1,6 +1,7 @@
 package kg.sweezy.watchtime.service.impl;
 
 import kg.sweezy.watchtime.entity.CommentEntity;
+import kg.sweezy.watchtime.entity.PreviewVideoEntity;
 import kg.sweezy.watchtime.entity.UserEntity;
 import kg.sweezy.watchtime.entity.VideoEntity;
 import kg.sweezy.watchtime.exception.AuthenticationException;
@@ -15,8 +16,6 @@ import kg.sweezy.watchtime.service.*;
 import kg.sweezy.watchtime.utils.ManageTranslation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +25,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
-@Profile(value = "develop")
-public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implements VideoService {
+@Profile(value = "test")
+public class VideoServiceTestImpl extends MediaBaseServiceImpl<VideoEntity> implements VideoService {
     private final VideoRepository videoRepository;
     private final AuthService authService;
     private final UserRepository userRepository;
@@ -38,7 +37,7 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
     private final MailService mailService;
 
     @Autowired
-    public VideoServiceImpl(VideoRepository videoRepository, AuthService authService, UserRepository userRepository, ManageTranslation manageTranslation, VideoMinIoService videoMinIoService, PreviewVideoRepository previewVideoRepository, UserService userService, CommentRepository commentRepository, MailService mailService) {
+    public VideoServiceTestImpl(VideoRepository videoRepository, AuthService authService, UserRepository userRepository, ManageTranslation manageTranslation, VideoMinIoService videoMinIoService, PreviewVideoRepository previewVideoRepository, UserService userService, CommentRepository commentRepository, MailService mailService) {
         super(authService, manageTranslation, commentRepository);
         this.videoRepository = videoRepository;
         this.authService = authService;
@@ -60,13 +59,8 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
                 || videoPreview.getOriginalFilename().replace(" ", "").isEmpty()
                 || videoEntity.getDescription().replace(" ", "").isEmpty()) throw new VideoUploadException("error.videoEntity");
 
-        videoEntity = videoMinIoService.uploadVideo(videoEntity, videoFile);
-        videoEntity.setChannel(userEntity);
-        VideoEntity video =  videoRepository.save(videoEntity);
-        video.setPreviewVideo(previewVideoRepository.save(videoMinIoService.uploadVideoPreview(videoEntity, videoPreview)));
-
-        mailService.notifyAllSubscribers(userEntity, video, manageTranslation.getTranslation("success.notifyAboutVideo") + userEntity.getUsername());
-        return video;
+        videoEntity.setFileName("videoFileName");
+        return videoRepository.save(videoEntity);
     }
 
     @Override
@@ -92,12 +86,9 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
     }
 
     @Override
-    @CacheEvict(value = "videos", key = "#id", allEntries = true)
     public String deleteVideo(Long id) {
         VideoEntity videoEntity = videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("error.videoNotFound"));
         if(!videoEntity.getChannel().getUsername().equals(authService.getCurrentUser().getUsername())) throw new VideoNotFoundException("error.videoNotFound");
-        videoMinIoService.deleteVideoPreviewByFileName(videoEntity.getPreviewVideo().getFileName());
-        videoMinIoService.deleteVideoByFileName(videoEntity.getFileName());
         videoRepository.delete(videoEntity);
         return "success.deleteVideo";
     }
@@ -173,4 +164,5 @@ public class VideoServiceImpl extends MediaBaseServiceImpl<VideoEntity> implemen
     protected void saveMedia(VideoEntity media) {
         videoRepository.saveAndFlush(media);
     }
+
 }

@@ -44,8 +44,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @CachePut(value = "users", key = "#user.id")
-    @CacheEvict(value = "users", allEntries = true)
     public UserEntity register(UserEntity user, MultipartFile profilePicture) {
         if(user.getUsername().replace(" ", "").isEmpty()
                 || user.getPassword().replace(" ", "").isEmpty()

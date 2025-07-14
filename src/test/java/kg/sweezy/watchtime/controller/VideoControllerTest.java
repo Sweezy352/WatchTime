@@ -51,10 +51,10 @@ class VideoControllerTest {
                 .param("description", "Nice video")
                 .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.id").value(4))
                 .andExpect(jsonPath("$.title").value("Good video"))
                 .andExpect(jsonPath("$.description").value("Nice video"))
-                .andExpect(jsonPath("$.fileName").value("video.mp4"));
+                .andExpect(jsonPath("$.fileName").value("videoFileName"));
     }
 
     @DirtiesContext
@@ -148,7 +148,7 @@ class VideoControllerTest {
                 .content(commentBody)
                 .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.id").value(4))
                 .andExpect(jsonPath("$.content").value("test comment"));
     }
 

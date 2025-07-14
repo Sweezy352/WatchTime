@@ -94,7 +94,7 @@ public class MailServiceImpl implements MailService {
                 String html = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                 String videoLink = "http://localhost:8080/api/video/get-by-id/" + videoEntity.getId();
 
-                String htmlContent = String.format(html, videoEntity.getTitle(), "From: " + userEntity.getUsername() + "WatchTime Channel", videoLink);
+                String htmlContent = String.format(html, videoEntity.getTitle(), "From: " + userEntity.getUsername() + "WatchTime Channel", userEntity.getUsername() ,videoLink);
                 if (userEntity.getProfilePicture() == null) messageHelper.addInline("logo", new File(""));
                 if (userEntity.getProfilePicture() != null) messageHelper.addInline("logo", new InputStreamResource(profilePictureService.getProfilePictureByFileName(userEntity.getProfilePicture().getFileName())));
 

@@ -83,11 +83,14 @@ public class SecurityConfig {
 
                     authorizeRequests.requestMatchers(
                             "/swagger-ui/**",
-                            "/v3/api-docs/**",
-                            "/swagger-resources/**",
                             "/swagger-ui.html",
+                            "/v3/api-docs/**",
+                            "/v3/api-docs",
+                            "/swagger-resources/**",
+                            "/swagger-resources",
                             "/webjars/**"
                     ).permitAll();
+
                     authorizeRequests.anyRequest().authenticated();
                 }).sessionManagement(sessionManagement -> {
                     sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
