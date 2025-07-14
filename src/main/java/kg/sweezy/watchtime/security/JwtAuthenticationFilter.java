@@ -33,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = getJwtFromHeader(request);
 
+
         if(Objects.nonNull(token) && jwtHandler.validateToken(token)) {
             String username = jwtHandler.jwtParseToken(token);
             UserDetails userDetails = authService.loadUserByUsername(username);

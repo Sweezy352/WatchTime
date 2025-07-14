@@ -128,6 +128,14 @@ class UserControllerTest {
     @Test
     void unsubscribeById() throws Exception {
         String jwtToken = getJwtToken("Sweezy", "qweqwe");
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users/subscribe")
+                .header("Authorization", "Bearer " + jwtToken)
+                .queryParam("channelId", "3"))
+                .andExpect(status().isOk());
 
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users/get-subscription-channels")
+                        .header("Authorization", "Bearer " + jwtToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
     }
 }
