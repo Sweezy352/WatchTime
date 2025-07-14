@@ -34,8 +34,8 @@ create table if not exists videos(
 );
 
 create table if not exists m2m_likes_videos(
-    user_id bigint references users(id) unique,
-    video_id bigint references videos(id)
+    user_id bigint references users(id),
+    video_id bigint references videos(id) unique
 );
 
 create table if not exists m2m_play_list_videos(
